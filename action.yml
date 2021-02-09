@@ -1,0 +1,9 @@
+name: 'S3 Glob Sync'
+author: 'Oliver Siegmar'
+description: 'Sync files to S3 by maintaining file (glob) specific metadata'
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+branding:
+  icon: upload-cloud
+  color: green
