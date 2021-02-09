@@ -13,7 +13,7 @@ COPY build.gradle settings.gradle ./
 RUN ./gradlew downloadDependencies
 
 # Build
-COPY config ./config
+#COPY config ./config
 COPY src ./src
 RUN ./gradlew --offline installDist
 
