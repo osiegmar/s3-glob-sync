@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -111,7 +112,7 @@ public class S3RemoteRepository implements RemoteRepository {
         if (compareCachePolicy) {
             LOG.debug("Check cache policy change for {}", remoteFile.getName());
             final HeadObjectResponse headObjectResponse = s3.headObject(HeadObjectRequest.builder().bucket(bucket).key(remoteFile.getName()).build());
-            if (!headObjectResponse.cacheControl().equals(cacheControl)) {
+            if (!Objects.equals(headObjectResponse.cacheControl(), cacheControl)) {
                 LOG.debug("Cache-Control header for {} changed (old: {} / new: {})",
                     remoteFile.getName(), headObjectResponse.cacheControl(), cacheControl);
                 return true;
