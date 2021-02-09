@@ -26,6 +26,7 @@ import picocli.CommandLine;
 public class S3 implements Callable<Integer> {
 
     private static final Logger LOG = LoggerFactory.getLogger(S3.class);
+    private static final String ACL = "public-read";
 
     @Option(names = "--bucket", required = true, description = "the S3 bucket")
     String bucket;
@@ -90,13 +91,13 @@ public class S3 implements Callable<Integer> {
 
         // Determine all CREATEs (local files missing remote)
         for (final Path createFile : createFiles) {
-            repository.create(createFile, path.relativize(createFile).toString(), findCacheControl(createFile));
+            repository.create(createFile, path.relativize(createFile).toString(), ACL, findCacheControl(createFile));
         }
 
         // Determine all UPDATEs (local files with different remote state)
         boolean fileUpdates = false;
         for (final UpdateFile updateFile : updateFiles) {
-            fileUpdates |= repository.update(updateFile.getRemoteFile(), updateFile.getLocalFile(), path.relativize(updateFile.getLocalFile()).toString(), findCacheControl(updateFile.getLocalFile()));
+            fileUpdates |= repository.update(updateFile.getRemoteFile(), updateFile.getLocalFile(), path.relativize(updateFile.getLocalFile()).toString(), ACL, findCacheControl(updateFile.getLocalFile()));
         }
 
         // Determine all DELETEs (remote files with missing local)

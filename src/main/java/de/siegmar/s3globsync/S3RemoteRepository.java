@@ -57,17 +57,23 @@ public class S3RemoteRepository implements RemoteRepository {
     }
 
     @Override
-    public void create(final Path path, final String name, final String cacheControl) {
+    public void create(final Path path, final String name, final String acl, final String cacheControl) {
         if (!dryrun) {
             LOG.info("Create {} (from {})", prefix + name, path);
-            s3.putObject(PutObjectRequest.builder().bucket(bucket).key(prefix + name).cacheControl(cacheControl).build(), path);
+            final PutObjectRequest req = PutObjectRequest.builder()
+                .bucket(bucket)
+                .key(prefix + name)
+                .cacheControl(cacheControl)
+                .acl(acl)
+                .build();
+            s3.putObject(req, path);
         } else {
             LOG.info("DRY-RUN -- Create {} (from {})", prefix + name, path);
         }
     }
 
     @Override
-    public boolean update(final RemoteFile remoteFile, final Path path, final String name, final String cacheControl) {
+    public boolean update(final RemoteFile remoteFile, final Path path, final String name, final String acl, final String cacheControl) {
         try {
             if (fileChanged(remoteFile, path, cacheControl)) {
                 if (!dryrun) {
@@ -76,6 +82,7 @@ public class S3RemoteRepository implements RemoteRepository {
                         .bucket(bucket)
                         .key(prefix + name)
                         .cacheControl(cacheControl)
+                        .acl(acl)
                         .build();
 
                     s3.putObject(req, path);
