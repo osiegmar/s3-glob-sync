@@ -7,9 +7,9 @@ public interface RemoteRepository {
 
     List<RemoteFile> list();
 
-    void create(Path path, String name, final String acl, final String cacheControl);
+    void create(Path path, String name, final FileMetadata fileMetadata);
 
-    boolean update(final RemoteFile remoteFile, Path path, String name, final String acl, final String cacheControl);
+    boolean update(final RemoteFile remoteFile, Path path, String name, final FileMetadata fileMetadata);
 
     void delete(RemoteFile remoteFile);
 

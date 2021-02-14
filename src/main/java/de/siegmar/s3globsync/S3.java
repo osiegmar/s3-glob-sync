@@ -26,7 +26,6 @@ import picocli.CommandLine;
 public class S3 implements Callable<Integer> {
 
     private static final Logger LOG = LoggerFactory.getLogger(S3.class);
-    private static final String ACL = "public-read";
 
     @Option(names = "--bucket", required = true, description = "the S3 bucket")
     String bucket;
@@ -34,8 +33,11 @@ public class S3 implements Callable<Integer> {
     @Option(names = "--prefix", description = "the S3 prefix (e.g. 'preview/') to use")
     String prefix = "";
 
-    @Option(names = "--default-cache-policy", description = "the default cache policy to use")
-    String defaultCachePolicy = "no-store";
+    @Option(names = "--default-cache-policy", defaultValue = "no-store", description = "the default cache policy to use")
+    String defaultCachePolicy;
+
+    @Option(names = "--default-acl", defaultValue = "public-read", description = "the default ACL to use")
+    String defaultAcl;
 
     @Option(names = "--exclude", description = "files (glob) to be excluded")
     List<String> excludes = new ArrayList<>();
@@ -46,11 +48,11 @@ public class S3 implements Callable<Integer> {
     @Option(names = "--dryrun", description = "if a dry run should be performed (no real manipulations)")
     boolean dryrun;
 
-    @Option(names = "--delete-orphaned", description = "delete files on S3 which are not present locally")
-    boolean deleteOrphaned = true;
+    @Option(names = "--delete-orphaned", defaultValue = "true", description = "delete files on S3 which are not present locally")
+    boolean deleteOrphaned;
 
-    @Option(names = "--wait-before-delete", description = "Milliseconds to wait before deleting files")
-    int waitBeforeDelete = 5_000;
+    @Option(names = "--wait-before-delete", defaultValue = "5000", description = "Milliseconds to wait before deleting files")
+    int waitBeforeDelete;
 
     @Option(names = {"-h", "--help"}, usageHelp = true, description = "display this help message")
     boolean usageHelpRequested;
@@ -91,13 +93,15 @@ public class S3 implements Callable<Integer> {
 
         // Determine all CREATEs (local files missing remote)
         for (final Path createFile : createFiles) {
-            repository.create(createFile, path.relativize(createFile).toString(), ACL, findCacheControl(createFile));
+            final FileMetadata fileMetadata = findMetadata(createFile);
+            repository.create(createFile, path.relativize(createFile).toString(), fileMetadata);
         }
 
         // Determine all UPDATEs (local files with different remote state)
         boolean fileUpdates = false;
         for (final UpdateFile updateFile : updateFiles) {
-            fileUpdates |= repository.update(updateFile.getRemoteFile(), updateFile.getLocalFile(), path.relativize(updateFile.getLocalFile()).toString(), ACL, findCacheControl(updateFile.getLocalFile()));
+            final FileMetadata fileMetadata = findMetadata(updateFile.getLocalFile());
+            fileUpdates |= repository.update(updateFile.getRemoteFile(), updateFile.getLocalFile(), path.relativize(updateFile.getLocalFile()).toString(), fileMetadata);
         }
 
         // Determine all DELETEs (remote files with missing local)
@@ -140,15 +144,15 @@ public class S3 implements Callable<Integer> {
         return false;
     }
 
-    private String findCacheControl(final Path createFile) {
+    private FileMetadata findMetadata(final Path createFile) {
         for (final GlobGroup globGroup : globGroups) {
             final PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher("glob:" + globGroup.glob);
             if (pathMatcher.matches(path.relativize(createFile))) {
-                return globGroup.cachePolicy;
+                return new FileMetadata(globGroup.cachePolicy, globGroup.acl);
             }
         }
 
-        return defaultCachePolicy;
+        return new FileMetadata(defaultCachePolicy, defaultAcl);
     }
 
     public static void main(String[] args) {
@@ -162,6 +166,9 @@ public class S3 implements Callable<Integer> {
 
         @Option(names = "--cache-policy", required = true, description = "cache policy specific for this file glob")
         String cachePolicy;
+
+        @Option(names = "--acl", required = true, description = "acl for this file glob")
+        String acl;
 
     }
 

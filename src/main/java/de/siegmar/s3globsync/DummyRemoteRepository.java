@@ -20,7 +20,7 @@ public class DummyRemoteRepository implements RemoteRepository {
     }
 
     @Override
-    public void create(final Path path, final String name, final String acl, final String cacheControl) {
+    public void create(final Path path, final String name, final FileMetadata fileMetadata) {
         System.out.println("Create " + buildRemotePath(name) + " (from " + path + ")");
     }
 
@@ -29,7 +29,7 @@ public class DummyRemoteRepository implements RemoteRepository {
     }
 
     @Override
-    public boolean update(final RemoteFile remoteFile, final Path path, final String name, final String acl, final String cacheControl) {
+    public boolean update(final RemoteFile remoteFile, final Path path, final String name, final FileMetadata fileMetadata) {
         System.out.println("Update " + buildRemotePath(name) + " (from " + path + ")");
         return false;
     }
