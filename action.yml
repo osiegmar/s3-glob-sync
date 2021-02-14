@@ -1,4 +1,4 @@
-name: 'S3 Glob Sync'
+name: 'Seek and Deploy'
 author: 'Oliver Siegmar'
 description: 'Sync files to S3 by maintaining file (glob) specific metadata'
 runs:
