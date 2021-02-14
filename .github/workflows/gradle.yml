@@ -1,0 +1,21 @@
+name: build
+
+on:
+  push:
+    paths-ignore:
+      - '**/*.md'
+  pull_request:
+    paths-ignore:
+      - '**/*.md'
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build with Gradle
+      run: |
+        docker build -t docker.pkg.github.com/osiegmar/s3-glob-sync/s3-glob-sync:v0 .
+        docker push docker.pkg.github.com/osiegmar/s3-glob-sync/s3-glob-sync:v0
