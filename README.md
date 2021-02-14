@@ -1,4 +1,4 @@
-# S3 Glob sync
+# Seek and Deploy
 
 > :warning: **This project is in very early stage of development!**
 
