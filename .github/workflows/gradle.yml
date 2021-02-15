@@ -16,8 +16,4 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Build with Gradle
-      run: |
-        IMAGE_NAME="docker.pkg.github.com/${GITHUB_REPOSITORY}/s3-glob-sync:v0"
-        echo "${{ github.token }}" | docker login https://docker.pkg.github.com -u ${GITHUB_ACTOR} --password-stdin
-        docker build -t $IMAGE_NAME .
-        docker push $IMAGE_NAME
+      run: docker build -t build .

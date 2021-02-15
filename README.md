@@ -1,66 +1,6 @@
-# Seek and Deploy
+# S3 Glob Sync
 
 > :warning: **This project is in very early stage of development!**
-
-GitHub action to sync static files to an S3 bucket while maintaining file specific metadata.
-
-## Example usage
-
-```
-name: Upload Website
-
-on:
-  push:
-    branches:
-    - master
-
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v2
-    - uses: osiegmar/s3-glob-sync@v0
-      with:
-        args: --bucket=my_bucket dist
-      env:
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-```
-
-## Advanced example usage
-
-```
-name: Upload Website
-
-on:
-  push:
-    branches:
-    - master
-
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v2
-    - uses: osiegmar/s3-glob-sync@v0
-      with:
-        args: >
-          --bucket=my_bucket
-          --compare-cache-policy
-          --delete-orphaned
-          --exclude="**/.gitkeep"
-          --default-acl="public-read"
-          --default-cache-policy="no-store"
-          --prefix="preview/"
-          --glob="static/**" --cache-policy="public, max-age=604800, immutable"
-          --glob="robots.txt" --cache-policy="public, max-age=86400, must-revalidate"
-          --glob="**/*.html" --cache-policy="public, no-cache"
-          dist
-      env:
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        AWS_REGION: 'us-west-1' # optional: defaults to us-east-1
-```
 
 ## Overview of CLI arguments
 
