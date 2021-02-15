@@ -15,5 +15,5 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Build with Gradle
+    - name: Build with Docker
       run: docker build -t build .

@@ -2,6 +2,8 @@
 
 > :warning: **This project is in very early stage of development!**
 
+Utility to publish files to a S3 bucket while maintaining file specific metadata.
+
 ## Overview of CLI arguments
 
 ```
