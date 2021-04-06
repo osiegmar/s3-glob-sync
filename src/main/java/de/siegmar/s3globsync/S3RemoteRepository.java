@@ -30,14 +30,14 @@ public class S3RemoteRepository implements RemoteRepository {
     private final String bucket;
     private final String prefix;
     private final boolean compareCachePolicy;
-    private final boolean dryrun;
+    private final boolean dryRun;
     private final S3Client s3;
 
-    public S3RemoteRepository(final String bucket, final String prefix, final boolean compareCachePolicy, final boolean dryrun) {
+    public S3RemoteRepository(final String bucket, final String prefix, final boolean compareCachePolicy, final boolean dryRun) {
         this.bucket = bucket;
         this.prefix = prefix;
         this.compareCachePolicy = compareCachePolicy;
-        this.dryrun = dryrun;
+        this.dryRun = dryRun;
         s3 = S3Client.builder().build();
     }
 
@@ -58,7 +58,7 @@ public class S3RemoteRepository implements RemoteRepository {
 
     @Override
     public void create(final Path path, final String name, final FileMetadata fileMetadata) {
-        if (!dryrun) {
+        if (!dryRun) {
             LOG.info("Create {} (from {})", prefix + name, path);
             final PutObjectRequest req = PutObjectRequest.builder()
                 .bucket(bucket)
@@ -76,7 +76,7 @@ public class S3RemoteRepository implements RemoteRepository {
     public boolean update(final RemoteFile remoteFile, final Path path, final String name, final FileMetadata fileMetadata) {
         try {
             if (fileChanged(remoteFile, path, fileMetadata.getCachePolicy())) {
-                if (!dryrun) {
+                if (!dryRun) {
                     LOG.info("Update {} (from {})", prefix + name, path);
                     final PutObjectRequest req = PutObjectRequest.builder()
                         .bucket(bucket)
@@ -131,7 +131,7 @@ public class S3RemoteRepository implements RemoteRepository {
 
     @Override
     public void delete(final RemoteFile remoteFile) {
-        if (!dryrun) {
+        if (!dryRun) {
             LOG.info("Delete {}", remoteFile);
             s3.deleteObject(DeleteObjectRequest.builder().bucket(bucket).key(remoteFile.getName()).build());
         } else {

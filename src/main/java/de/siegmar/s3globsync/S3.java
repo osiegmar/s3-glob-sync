@@ -22,7 +22,8 @@ import org.slf4j.LoggerFactory;
 
 import picocli.CommandLine;
 
-@Command(name = "s3-glob-sync")
+@Command(name = "s3-glob-sync", usageHelpWidth = 120, usageHelpAutoWidth = true,
+         version = "0.1")
 public class S3 implements Callable<Integer> {
 
     private static final Logger LOG = LoggerFactory.getLogger(S3.class);
@@ -45,8 +46,8 @@ public class S3 implements Callable<Integer> {
     @Option(names = "--compare-cache-policy", description = "if changes in the cache-policy should be checked and corrected")
     boolean compareCachePolicy;
 
-    @Option(names = "--dryrun", description = "if a dry run should be performed (no real manipulations)")
-    boolean dryrun;
+    @Option(names = "--dry-run", description = "if a dry-run should be performed (no real manipulations)")
+    boolean dryRun;
 
     @Option(names = "--delete-orphaned", defaultValue = "true", description = "delete files on S3 which are not present locally")
     boolean deleteOrphaned;
@@ -54,19 +55,22 @@ public class S3 implements Callable<Integer> {
     @Option(names = "--wait-before-delete", defaultValue = "5000", description = "Milliseconds to wait before deleting files")
     int waitBeforeDelete;
 
-    @Option(names = {"-h", "--help"}, usageHelp = true, description = "display this help message")
-    boolean usageHelpRequested;
-
     @ArgGroup(exclusive = false, multiplicity = "0..*")
     List<GlobGroup> globGroups = new ArrayList<>();
 
     @Parameters(description = "Local directory to sync with S3")
     Path path;
 
+    @Option(names = "--version", versionHelp = true, description = "print version information and exit")
+    boolean versionRequested;
+
+    @Option(names = {"-h", "--help"}, usageHelp = true, description = "display this help message")
+    boolean usageHelpRequested;
+
     @Override
     public Integer call() throws Exception {
         //final RemoteRepository repository = new DummyRemoteRepository(prefix);
-        final RemoteRepository repository = new S3RemoteRepository(bucket, prefix, compareCachePolicy, dryrun);
+        final RemoteRepository repository = new S3RemoteRepository(bucket, prefix, compareCachePolicy, dryRun);
 
         final List<Path> localFilesToSync = scanLocal();
         final List<RemoteFile> remoteFiles = repository.list();
@@ -110,7 +114,7 @@ public class S3 implements Callable<Integer> {
                 LOG.debug("Nothing to delete");
             } else {
                 // Wait a moment to not disturb current deliveries
-                if (!dryrun && fileUpdates) {
+                if (!dryRun && fileUpdates) {
                     LOG.info("Wait {} milliseconds before deleting files (prevent failed access to stale references)", waitBeforeDelete);
                     Thread.sleep(waitBeforeDelete);
                 }
@@ -149,8 +153,8 @@ public class S3 implements Callable<Integer> {
             final PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher("glob:" + globGroup.glob);
             if (pathMatcher.matches(path.relativize(createFile))) {
                 return new FileMetadata(
-                    Optional.ofNullable(globGroup.cachePolicy).orElse(defaultCachePolicy),
-                    Optional.ofNullable(globGroup.acl).orElse(defaultAcl));
+                    Optional.ofNullable(globGroup.globControl.cachePolicy).orElse(defaultCachePolicy),
+                    Optional.ofNullable(globGroup.globControl.acl).orElse(defaultAcl));
             }
         }
 
@@ -166,10 +170,17 @@ public class S3 implements Callable<Integer> {
         @Option(names = "--glob", required = true, description = "file (glob) specific settings")
         String glob;
 
-        @Option(names = "--cache-policy", required = false, description = "cache policy specific for this file glob")
+        @ArgGroup(exclusive = false, multiplicity = "1", heading = "Arguments of --glob:%n")
+        GlobControl globControl;
+
+    }
+
+    static class GlobControl {
+
+        @Option(names = "--cache-policy", description = "cache policy specific for this file glob (e.g. 'public, max-age=86400')")
         String cachePolicy;
 
-        @Option(names = "--acl", required = false, description = "acl for this file glob")
+        @Option(names = "--acl", description = "acl for this file glob (e.g. 'public-read')")
         String acl;
 
     }
