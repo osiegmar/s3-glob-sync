@@ -15,11 +15,11 @@ RUN ./gradlew downloadDependencies
 # Build
 #COPY config ./config
 COPY src ./src
-RUN ./gradlew --offline installDist
+RUN ./gradlew --offline jlink
 
 # RUNTIME IMAGE
-FROM adoptopenjdk:11-jre
-COPY --from=BUILD /builder/build/install/s3-glob-sync /opt/s3-glob-sync
+FROM debian:stretch-slim
+COPY --from=BUILD /builder/build/image /opt/s3-glob-sync
 COPY entrypoint.sh /
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["-h"]
