@@ -1,10 +1,10 @@
 plugins {
-    id "application"
-    id "com.github.spotbugs" version "4.6.0"
+    id 'application'
+    id 'com.github.spotbugs' version '4.6.0'
 }
 
-group = "de.siegmar"
-version = "0.0.1"
+group = 'de.siegmar'
+version = '0.0.1'
 
 repositories {
     mavenCentral()
@@ -25,12 +25,12 @@ spotbugs {
 }
 
 dependencies {
-    implementation "ch.qos.logback:logback-classic:1.2.3"
-    implementation "info.picocli:picocli:4.6.1"
-    implementation "software.amazon.awssdk:s3:2.15.76"
-    testImplementation "org.junit.jupiter:junit-jupiter-api:5.7.0"
-    testImplementation "org.junit.jupiter:junit-jupiter-params:5.7.0"
-    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.7.0"
+    implementation 'info.picocli:picocli:4.6.1'
+    implementation 'software.amazon.awssdk:s3:2.15.76'
+    implementation 'ch.qos.logback:logback-classic:1.2.3'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+    testImplementation 'org.junit.jupiter:junit-jupiter-params:5.7.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
 }
 
 application {
@@ -38,8 +38,8 @@ application {
 }
 
 allprojects {
-    tasks.register("downloadDependencies", Copy) { Copy copy ->
-        copy.into project.layout.buildDirectory.dir("dependencies")
+    tasks.register('downloadDependencies', Copy) { Copy copy ->
+        copy.into project.layout.buildDirectory.dir('dependencies')
         copy.from {
             configurations.matching { Configuration c ->
                 c.isCanBeResolved()
