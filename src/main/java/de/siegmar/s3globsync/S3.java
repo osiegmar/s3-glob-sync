@@ -148,7 +148,9 @@ public class S3 implements Callable<Integer> {
         for (final GlobGroup globGroup : globGroups) {
             final PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher("glob:" + globGroup.glob);
             if (pathMatcher.matches(path.relativize(createFile))) {
-                return new FileMetadata(globGroup.cachePolicy, globGroup.acl);
+                return new FileMetadata(
+                    Optional.ofNullable(globGroup.cachePolicy).orElse(defaultCachePolicy),
+                    Optional.ofNullable(globGroup.acl).orElse(defaultAcl));
             }
         }
 
@@ -164,10 +166,10 @@ public class S3 implements Callable<Integer> {
         @Option(names = "--glob", required = true, description = "file (glob) specific settings")
         String glob;
 
-        @Option(names = "--cache-policy", required = true, description = "cache policy specific for this file glob")
+        @Option(names = "--cache-policy", required = false, description = "cache policy specific for this file glob")
         String cachePolicy;
 
-        @Option(names = "--acl", required = true, description = "acl for this file glob")
+        @Option(names = "--acl", required = false, description = "acl for this file glob")
         String acl;
 
     }
